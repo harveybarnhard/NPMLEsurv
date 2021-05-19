@@ -1,11 +1,5 @@
 library(TMB)
 
-
-# Actual testing ===============================================================
-setwd("C:/Users/Harvey/Dropbox/Thesis/code/clean/inspection/aux_opt")
-compile("loglik.cpp")
-dyn.load(dynlib("loglik"))
-
 # Monte-Carlo testing ==========================================================
 n     <- 10000
 lambda <- 0.05 # Scale parameter
@@ -52,18 +46,18 @@ for(i in 1:1000){
   # Set bounds for all parameter
   L = c(alpha=3,theta=0,pi=1)
   U = c(alpha=5,theta=0, pi=1)
-  
+
   # List parameters that should be fixed in nlminb() or optim()
   map = list(theta=factor(NA), pi=factor(NA))
   #map=list()  # All parameters active
-  
+
   # Remove inactive parameters from bounds
   (L <- L[-match(names(map), names(L))])
   (U <- U[-match(names(map), names(U))])
 # Fit the model ================================================================
   data <- list(Xlist=Xlist, censorvec=censorvec)
   parameters <- list(alpha=c(0,0,0,0), theta=0, pi=1)
-  obj <- MakeADFun(data, parameters, DLL="loglik", map=map)
+  obj <- TMB::MakeADFun(data, parameters, DLL="NPMLEsurv", map=map)
   obj$method  <- "BFGS"
   obj$hessian <- TRUE
   opt <- do.call("optim", obj)
